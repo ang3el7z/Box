@@ -1,10 +1,10 @@
-# OneBox
+# Box
 
 
 
-[![Dev Build](https://github.com/OneOhCloud/OneBox/actions/workflows/dev-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/dev-release.yml)
-[![Beta Build](https://github.com/OneOhCloud/OneBox/actions/workflows/beta-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/beta-release.yml)
-[![Stable Build](https://github.com/OneOhCloud/OneBox/actions/workflows/stable-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/stable-release.yml)
+[![Dev Build](https://github.com/ang3el7z/Box/actions/workflows/dev-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/dev-release.yml)
+[![Beta Build](https://github.com/ang3el7z/Box/actions/workflows/beta-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/beta-release.yml)
+[![Stable Build](https://github.com/ang3el7z/Box/actions/workflows/stable-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/stable-release.yml)
 
 [简体中文](./README_CN.md)
  
@@ -31,4 +31,4 @@ For users requiring advanced customization, the following projects are recommend
 
 ## Download and Installation
 
-Please visit our [releases page](https://github.com/OneOhCloud/OneBox/releases) to get the latest version.
+Please visit our [releases page](https://github.com/ang3el7z/Box/releases) to get the latest version.

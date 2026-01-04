@@ -199,7 +199,7 @@ pub fn run() {
             let arch = tauri_plugin_os::arch();
             let locale = tauri_plugin_os::locale().unwrap_or_else(|| String::from("en-US"));
             let os_info = format!("{}/{}", os, arch);
-            let user_agent = format!("OneBox/{} (Tauri; {}; {})", app_version, os_info, locale);
+            let user_agent = format!("Box/{} (Tauri; {}; {})", app_version, os_info, locale);
 
             tauri::async_runtime::spawn(async move {
                 log::info!("User-Agent: {}", user_agent);

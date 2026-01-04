@@ -1,7 +1,7 @@
-# OneBox
-[![Dev Build](https://github.com/OneOhCloud/OneBox/actions/workflows/dev-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/dev-release.yml)
-[![Beta Build](https://github.com/OneOhCloud/OneBox/actions/workflows/beta-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/beta-release.yml)
-[![Stable Build](https://github.com/OneOhCloud/OneBox/actions/workflows/stable-release.yml/badge.svg)](https://github.com/OneOhCloud/OneBox/actions/workflows/stable-release.yml)
+# Box
+[![Dev Build](https://github.com/ang3el7z/Box/actions/workflows/dev-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/dev-release.yml)
+[![Beta Build](https://github.com/ang3el7z/Box/actions/workflows/beta-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/beta-release.yml)
+[![Stable Build](https://github.com/ang3el7z/Box/actions/workflows/stable-release.yml/badge.svg)](https://github.com/ang3el7z/Box/actions/workflows/stable-release.yml)
 
 基于 sing-box 内核的跨平台 GUI 客户端。
 
@@ -25,5 +25,5 @@
 
 ## 下载安装 
 
-请访问我们的[发布页面](https://github.com/OneOhCloud/OneBox/releases)获取最新版本。
+请访问我们的[发布页面](https://github.com/ang3el7z/Box/releases)获取最新版本。
 

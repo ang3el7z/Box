@@ -1,11 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useContext, useEffect, useState } from "react";
-import { Github, Globe, InfoCircleFill, XLg } from "react-bootstrap-icons";
+import { Github, InfoCircleFill, XLg } from "react-bootstrap-icons";
 import { toast } from 'sonner';
 import { NavContext } from "../../single/context";
-import { aboutText } from "../../types/copyright";
-import { GITHUB_URL, OFFICIAL_WEBSITE, OsInfo } from "../../types/definition";
+import { GITHUB_URL, OsInfo } from "../../types/definition";
 import { formatOsInfo, getOsInfo, getSingBoxUserAgent, t } from "../../utils/helper";
 import { SettingItem } from "./common";
 
@@ -116,7 +115,7 @@ function About({ onClose }: AboutProps) {
                     <div className="px-6 pt-6 pb-4 text-center">
 
 
-                        <h2 className="text-xl font-bold">OneBox</h2>
+                        <h2 className="text-xl font-bold">Box</h2>
                         <p className="text-gray-500 text-xs mt-1"> {t("version") + " " + osInfo.appVersion}</p>
                     </div>
 
@@ -153,27 +152,13 @@ function About({ onClose }: AboutProps) {
 
                         </div>
 
-                        {/* 版权信息部分 */}
-                        <div className='flex justify-between  items-center mb-2'>
-                            <h3 className="text-sm font-medium text-gray-500  capitalize">{t("copyright")}</h3>
-                            <div className='flex gap-1  '>
-
-                                <button className='btn  btn-circle btn-sm  border-0 ' onClick={() => openUrl(OFFICIAL_WEBSITE)}>
-                                    <Globe className="text-[#007AFF]" size={20} />
-                                </button>
-
+                        {/* GitHub ссылка */}
+                        <div className='flex justify-end items-center mb-2'>
+                            <div className='flex gap-1'>
                                 <button className='btn btn-circle  btn-sm  border-0' onClick={() => openUrl(GITHUB_URL)}>
                                     <Github className="text-[#007AFF]" size={20} />
-
                                 </button>
                             </div>
-                        </div>
-                        <div
-                            className='bg-white p-2 rounded-lg'
-                        >
-                            <pre className="text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">
-                                {aboutText}
-                            </pre>
                         </div>
 
                         <div>

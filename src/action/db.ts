@@ -9,7 +9,6 @@ import { getSingBoxUserAgent, t } from '../utils/helper';
 
 interface ResponseHeaders {
     'subscription-userinfo': string;
-    'official-website': string;
     'content-disposition': string;
     get?: (name: string) => string | null;
 }
@@ -36,7 +35,6 @@ async function fetchConfigContent(url: string): Promise<ConfigResponse> {
                 data: JSON.parse(content),
                 headers: {
                     'subscription-userinfo': `upload=0; download=0; total=1125899906842624; expire=32503680000`,
-                    'official-website': 'https://sing-box.net',
                     'content-disposition': `attachment; filename=local-config-${Date.now()}.json`
                 },
                 status: 200
@@ -59,7 +57,6 @@ async function fetchConfigContent(url: string): Promise<ConfigResponse> {
                 data: null,
                 headers: {
                     'subscription-userinfo': '',
-                    'official-website': 'https://sing-box.net',
                     'content-disposition': ''
                 },
                 status: response.status
@@ -70,7 +67,6 @@ async function fetchConfigContent(url: string): Promise<ConfigResponse> {
             data: await response.json(),
             headers: {
                 'subscription-userinfo': response.headers.get('subscription-userinfo') || '',
-                'official-website': response.headers.get('official-website') || 'https://sing-box.net',
                 'content-disposition': response.headers.get('content-disposition') || ''
             },
             status: response.status
@@ -127,15 +123,14 @@ export async function updateSubscription(identifier: string) {
         const response = await fetchConfigContent(url);
 
         const { upload, download, total, expire } = getRemoteInfoBySubscriptionUserinfo(response.headers['subscription-userinfo'] || '')
-        const officialWebsite = response.headers['official-website'] || 'https://sing-box.net'
         const used_traffic = parseInt(upload) + parseInt(download)
         const total_traffic = parseInt(total)
         const expire_time = parseInt(expire) * 1000
         const last_update_time = Date.now()
 
         await db.execute(
-            'UPDATE subscriptions SET official_website = ?, used_traffic = ?, total_traffic = ?, expire_time = ?, last_update_time = ? WHERE identifier = ?',
-            [officialWebsite, used_traffic, total_traffic, expire_time, last_update_time, identifier]
+            'UPDATE subscriptions SET used_traffic = ?, total_traffic = ?, expire_time = ?, last_update_time = ? WHERE identifier = ?',
+            [used_traffic, total_traffic, expire_time, last_update_time, identifier]
         )
         await db.execute('UPDATE subscription_configs SET config_content = ? WHERE identifier = ?', [JSON.stringify(response.data), identifier])
         // toast.success('更新订阅成功')
@@ -166,8 +161,6 @@ export async function addSubscription(url: string, name: string | undefined) {
     try {
         const response = await fetchConfigContent(url);
 
-        const officialWebsite = response.headers['official-website'] || 'https://sing-box.net'
-
         if (name === undefined || name === '' || name === "默认配置") {
             name = getRemoteNameByContentDisposition(response.headers['content-disposition'] || '') || '订阅'
         }
@@ -181,8 +174,8 @@ export async function addSubscription(url: string, name: string | undefined) {
 
 
         const db = await getDataBaseInstance();
-        await db.execute('INSERT INTO subscriptions (identifier, name, subscription_url, official_website, used_traffic, total_traffic, expire_time, last_update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [identifier, name, url, officialWebsite, used_traffic, total_traffic, expire_time, last_update_time])
+        await db.execute('INSERT INTO subscriptions (identifier, name, subscription_url, used_traffic, total_traffic, expire_time, last_update_time) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [identifier, name, url, used_traffic, total_traffic, expire_time, last_update_time])
         await db.execute('INSERT INTO subscription_configs (identifier, config_content) VALUES (?, ?)', [identifier, JSON.stringify(response.data)])
         toast.success(t('add_subscription_success'), {
             id: toastId

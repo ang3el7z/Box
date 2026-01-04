@@ -247,7 +247,7 @@ const mixedRulesConfig = {
         "cache_file": {} // 此字段将被忽略
     },
     // ------------------ Outbounds ------------------
-    // OneBox 会自动追加远程配置或者本地配置内容中的服务节点
+    // Box 会自动追加远程配置或者本地配置内容中的服务节点
     // 到 outbounds 以及 ExitGateway["outbounds"] 和 auto["outbounds"] 中
     // 如果需要添加自定义的出站，可以在此处添加，但请不要有重复的 tag 名称以及修改以下三个出站的 tag 名称
     // 记住一个修改原则：只追加，不修改，不删除，不重复
@@ -381,7 +381,7 @@ const miexdGlobalConfig = {
         "cache_file": {} // 此字段将被忽略
     },
     // ------------------ Outbounds ------------------
-    // OneBox 会自动追加远程配置或者本地配置内容中的服务节点
+    // Box 会自动追加远程配置或者本地配置内容中的服务节点
     // 到 outbounds 以及 ExitGateway["outbounds"] 和 auto["outbounds"] 中
     // 如果需要添加自定义的出站，可以在此处添加，但请不要有重复的 tag 名称以及修改以下三个出站的 tag 名称
     // 记住一个修改原则：只追加，不修改，不删除，不重复
@@ -680,7 +680,7 @@ const TunRulesConfig = {
         "cache_file": {} // 此字段将被忽略
     },
     // ------------------ Outbounds ------------------
-    // OneBox 会自动追加远程配置或者本地配置内容中的服务节点
+    // Box 会自动追加远程配置或者本地配置内容中的服务节点
     // 到 outbounds 以及 ExitGateway["outbounds"] 和 auto["outbounds"] 中
     // 如果需要添加自定义的出站，可以在此处添加，但请不要有重复的 tag 名称以及修改以下三个出站的 tag 名称
     // 记住一个修改原则：只追加，不修改，不删除，不重复
@@ -928,7 +928,7 @@ const TunGlobalConfig = {
         "cache_file": {} // 此字段将被忽略
     },
     // ------------------ Outbounds ------------------
-    // OneBox 会自动追加远程配置或者本地配置内容中的服务节点
+    // Box 会自动追加远程配置或者本地配置内容中的服务节点
     // 到 outbounds 以及 ExitGateway["outbounds"] 和 auto["outbounds"] 中
     // 如果需要添加自定义的出站，可以在此处添加，但请不要有重复的 tag 名称以及修改以下三个出站的 tag 名称
     // 记住一个修改原则：只追加，不修改，不删除，不重复

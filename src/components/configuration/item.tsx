@@ -1,4 +1,3 @@
-import { openUrl } from "@tauri-apps/plugin-opener"
 import bytes from "bytes"
 import { AnimatePresence, motion } from "framer-motion"
 import { useState } from "react"
@@ -119,13 +118,12 @@ export const SubscriptionItem: React.FC<SubscriptionItemProps> = ({
     const remainingDaysText = `${remainingDays} ${t("days")}`
 
     const handleToggleExpand = () => setExpanded(expanded === item.identifier ? '' : item.identifier)
-    const handleWebsiteClick = () => openUrl(item.official_website)
 
     return (
         <li key={item.identifier}>
             <div className="list-row items-center">
-                <div onClick={handleWebsiteClick}>
-                    <Avatar url={item.official_website} danger={usage >= 100} />
+                <div>
+                    <Avatar url="" danger={usage >= 100} />
                 </div>
                 <div className="max-w-40 flex flex-col gap-2">
                     <div className="truncate text-sm">{item.name}</div>

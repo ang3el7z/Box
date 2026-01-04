@@ -1,5 +1,5 @@
 {
-  "productName": "OneBox",
+  "productName": "Box",
   "version": "1.2.12",
   "identifier": "cloud.oneoh.onebox",
   "build": {
@@ -15,7 +15,7 @@
         "maximizable": false,
         "decorations": true,
         "resizable": false,
-        "title": "OneBox",
+        "title": "Box",
         "width": 320,
         "height": 570
       }
@@ -46,8 +46,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNERkM4MTE4RENFRUU4NDgKUldSSTZPN2NHSUg4UGFBOHU1UlFlMXE0eXh4b3hRaW1lb0FlYms1OWhxWnhJRURGN2FxcUZneEoK",
       "endpoints": [
-        "https://onebox-updater.oneoh.cloud/latest",
-        "https://github.com/OneOhCloud/OneBox/releases/latest/download/latest.json"
+        "https://github.com/ang3el7z/Box/releases/latest/download/latest.json"
       ]
     },
     "sql": {

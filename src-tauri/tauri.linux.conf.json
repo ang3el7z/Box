@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "identifier": "cloud.oneoh.onebox",
-  "productName": "OneBox",
+  "productName": "Box",
   "app": {
     "windows": [
       {
@@ -9,7 +9,7 @@
         "maximizable": false,
         "decorations": true,
         "resizable": false,
-        "title": "OneBox",
+        "title": "Box",
         "width": 320,
         "height": 600
       }

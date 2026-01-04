@@ -123,7 +123,7 @@ export async function setupTrayIcon() {
             const options = {
                 menu,
                 icon: tray_icon || defaultIcon,
-                tooltip: "OneBox"
+                tooltip: "Box"
             };
             trayInstance = await TrayIcon.new(options);
             trayInstance && trayInstance.setIconAsTemplate(true);
@@ -132,7 +132,7 @@ export async function setupTrayIcon() {
             const options = {
                 menu,
                 icon: tray_icon || defaultIcon,
-                tooltip: "OneBox"
+                tooltip: "Box"
             };
             trayInstance = await TrayIcon.new(options);
         }
