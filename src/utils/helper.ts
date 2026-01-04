@@ -8,16 +8,19 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { message } from '@tauri-apps/plugin-dialog';
 import en from '../../lang/en.json';
 import zh from '../../lang/zh.json';
+import ru from '../../lang/ru.json';
 import setGlobalTunConfig, { setGlobalMixedConfig, setMixedConfig, setTunConfig } from '../config/version_1_12/main';
 import { getClashApiSecret, getEnableTun, getLanguage, getStoreValue, getUserAgent } from '../single/store';
 const appWindow = getCurrentWindow();
 const enLang = en as Record<string, string>;
 const zhLang = zh as Record<string, string>;
-let currentLanguage: "zh" | "en" = "en";
+const ruLang = ru as Record<string, string>;
+let currentLanguage: "zh" | "en" | "ru" = "en";
 
 const languageOptions = {
     en: enLang,
     zh: zhLang,
+    ru: ruLang,
 
 
 }
@@ -25,7 +28,7 @@ const languageOptions = {
 export async function initLanguage() {
     try {
         // 优先使用用户设置的语言
-        const userLanguage = await getLanguage() as "zh" | "en";
+        const userLanguage = await getLanguage() as "zh" | "en" | "ru";
         if (userLanguage) {
             currentLanguage = userLanguage;
         }
@@ -250,7 +253,7 @@ export const t = (id: string, defaultMessage?: string): string => {
 
 // 当用户更改语言时，需要更新当前语言
 export async function updateLanguage() {
-    currentLanguage = await getLanguage() as "zh" | "en";
+    currentLanguage = await getLanguage() as "zh" | "en" | "ru";
 }
 
 

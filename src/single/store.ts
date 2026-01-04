@@ -6,6 +6,7 @@ import { ALLOWLAN_STORE_KEY, ENABLE_BYPASS_ROUTER_STORE_KEY, ENABLE_TUN_STORE_KE
 
 const OsType = type();
 export const LANGUAGE_STORE_KEY = 'language';
+export const FIRST_LAUNCH_KEY = 'first_launch';
 export const CLASH_API_SECRET = 'clash_api_secret_key';
 
 
@@ -92,7 +93,8 @@ export const getLanguage = async () => {
     if (osLocale) {
         if (osLocale.startsWith('zh')) {
             return 'zh';
-
+        } else if (osLocale.startsWith('ru')) {
+            return 'ru';
         } else {
             return 'en';
         }
@@ -102,6 +104,18 @@ export const getLanguage = async () => {
 
 export const setLanguage = async (language: string) => {
     await setStoreValue(LANGUAGE_STORE_KEY, language);
+};
+
+export const isFirstLaunch = async (): Promise<boolean> => {
+    const firstLaunch = await getStoreValue(FIRST_LAUNCH_KEY);
+    if (firstLaunch === undefined || firstLaunch === null) {
+        return true;
+    }
+    return false;
+};
+
+export const setFirstLaunchComplete = async () => {
+    await setStoreValue(FIRST_LAUNCH_KEY, false);
 };
 
 

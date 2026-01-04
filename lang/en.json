@@ -85,7 +85,7 @@
     "ip_cidr_rules": "IP CIDR Rules",
     "is_latest_version": "Current version is the latest",
     "kernel_version": "Kernel version",
-    "language_description": "切换至中文",
+    "language_description": "Select your preferred language",
     "language": "Language",
     "load_rules_failed": "Failed to load rules",
     "loading": "Loading...",
@@ -189,5 +189,8 @@
     "user_agent_settings": "User Agent",
     "version": "Version",
     "vpn_network": "VPN",
+    "select_language": "Select Language",
+    "select_language_description": "Please select your preferred language for the application",
+    "language_selected": "Language selected",
     "zzzzzeof": "Zzzzzeof"
 }

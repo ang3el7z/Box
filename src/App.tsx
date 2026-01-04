@@ -11,7 +11,9 @@ import { UpdateProvider } from './components/settings/update-context';
 import { syncAllConfigTemplates } from "./hooks/useSwr";
 import HomePage from "./page/home";
 import { ActiveScreenType, NavContext } from './single/context';
-import { initLanguage, t } from './utils/helper';
+import { initLanguage, t, updateLanguage } from './utils/helper';
+import { isFirstLaunch } from './single/store';
+import LanguageDialog from './components/settings/language-dialog';
 
 const ConfigurationPage = React.lazy(() => import('./page/config'));
 const DevPage = React.lazy(() => import('./page/developer'));
@@ -102,7 +104,7 @@ function App() {
   })
 
   const [language, setLanguage] = useState('unknown');
-
+  const [showLanguageDialog, setShowLanguageDialog] = useState(false);
 
   useEffect(() => {
     const handleLanguageChange = () => {
@@ -120,14 +122,30 @@ function App() {
   }
 
   useEffect(() => {
-    initLanguage().then(() => {
+    const checkFirstLaunch = async () => {
+      await initLanguage();
+      const firstLaunch = await isFirstLaunch();
+      if (firstLaunch) {
+        setShowLanguageDialog(true);
+      }
       setDockLang({
         home: t("home"),
         configuration: t("configuration"),
         settings: t("settings"),
-      })
-    })
+      });
+    };
+    checkFirstLaunch();
   }, []);
+
+  const handleLanguageSelected = async (lang: string) => {
+    await updateLanguage();
+    setLanguage(lang);
+    setDockLang({
+      home: t("home"),
+      configuration: t("configuration"),
+      settings: t("settings"),
+    });
+  };
 
 
 
@@ -136,6 +154,12 @@ function App() {
     <NavContext.Provider value={{ activeScreen, setActiveScreen, handleLanguageChange }}>
       <UpdateProvider>
         <Toaster position="top-center" toastOptions={{ duration: 2000 }} />
+
+        <LanguageDialog
+          open={showLanguageDialog}
+          onClose={() => setShowLanguageDialog(false)}
+          onLanguageSelected={handleLanguageSelected}
+        />
 
         <main className="relative bg-gray-50 flex flex-col h-screen">
           {activeScreen === 'home' &&
