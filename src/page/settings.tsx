@@ -1,9 +1,6 @@
 import AboutItem from '../components/settings/about';
 import ToggleAutoStart from '../components/settings/auto-start';
-import ToggleLan from '../components/settings/lan';
 import ToggleLanguage from '../components/settings/language';
-import RouterSettingsItem from '../components/settings/router-settings';
-import ToggleTun from '../components/settings/tun';
 import UpdaterItem from '../components/settings/updater';
 import { useVersion } from '../hooks/useVersion';
 import { t } from '../utils/helper';
@@ -20,15 +17,12 @@ export default function Settings() {
         <div className="mb-6 rounded-xl overflow-hidden bg-white shadow-none">
           <div className="divide-y divide-gray-50">
             <ToggleAutoStart />
-            <ToggleLan />
-            <ToggleTun />
             <ToggleLanguage />
           </div>
         </div>
 
         <div className="rounded-xl overflow-hidden bg-white shadow-none ">
           <div className="divide-y divide-gray-50">
-            <RouterSettingsItem />
             <UpdaterItem />
             <AboutItem />
           </div>

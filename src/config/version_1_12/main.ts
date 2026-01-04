@@ -1,6 +1,6 @@
 import * as path from '@tauri-apps/api/path';
 import { getSubscriptionConfig } from '../../action/db';
-import { getAllowLan, getClashApiSecret, getCustomRuleSet, getStoreValue } from '../../single/store';
+import { getAllowLan, getClashApiSecret, getStoreValue } from '../../single/store';
 import { STAGE_VERSION_STORE_KEY } from '../../types/definition';
 import { updateDHCPSettings2Config, updateVPNServerConfigFromDB } from './helper';
 
@@ -8,6 +8,47 @@ import { type } from '@tauri-apps/plugin-os';
 import { SING_BOX_VERSION, TUN_STACK_STORE_KEY } from '../../types/definition';
 import { configType, getConfigTemplateCacheKey } from '../common';
 import { getDefaultConfigTemplate } from './zh-cn/config';
+
+/**
+ * Определяет режим работы (TUN или system proxy) из конфига подписки
+ * @param identifier - идентификатор подписки
+ * @returns true если режим TUN, false если system proxy
+ * @throws Error если в конфиге нет ни TUN, ни system proxy
+ */
+export async function detectModeFromSubscription(identifier: string): Promise<boolean> {
+    try {
+        const subscriptionConfig = await getSubscriptionConfig(identifier);
+        if (!subscriptionConfig || !subscriptionConfig.inbounds || !Array.isArray(subscriptionConfig.inbounds)) {
+            throw new Error("Subscription config is missing or has no inbounds");
+        }
+        
+        // Проверяем наличие TUN inbound в конфиге подписки
+        const hasTunInbound = subscriptionConfig.inbounds.some((inbound: any) => 
+            inbound.type === 'tun'
+        );
+        
+        // Проверяем наличие mixed inbound (system proxy) в конфиге подписки
+        const hasMixedInbound = subscriptionConfig.inbounds.some((inbound: any) => 
+            inbound.type === 'mixed'
+        );
+        
+        // Если есть TUN, используем TUN
+        if (hasTunInbound) {
+            return true;
+        }
+        
+        // Если есть mixed (system proxy), используем system proxy
+        if (hasMixedInbound) {
+            return false;
+        }
+        
+        // Если нет ни TUN, ни system proxy - это ошибка
+        throw new Error("Subscription config must contain either TUN or system proxy (mixed) inbound");
+    } catch (error) {
+        console.error('Error detecting mode from subscription:', error);
+        throw error; // Пробрасываем ошибку дальше, не используем значение по умолчанию
+    }
+}
 
 
 async function getConfigTemplate(mode: configType): Promise<any> {
@@ -50,37 +91,24 @@ export async function setMixedConfig(identifier: string) {
     const appConfigPath = await path.appConfigDir();
     const dbCacheFilePath = await path.join(appConfigPath, 'mixed-cache-rule-v1.db');
 
-    let directCustomRuleSet = await getCustomRuleSet('direct');
-    let proxyCustomRuleSet = await getCustomRuleSet('proxy');
+    // Правила теперь берутся из конфига подписки, а не из настроек приложения
+    // Если в конфиге подписки есть route.rules, они будут использованы через updateVPNServerConfigFromDB
 
-
-    if (directCustomRuleSet) {
-        // 找到包含 direct-tag.oneoh.cloud 的规则的坐标，插入自定义规则
-        for (let i = 0; i < newConfig.route.rules.length; i++) {
-            let rule = newConfig.route.rules[i];
-            if (rule.domain && Array.isArray(rule.domain) && rule.domain.includes('direct-tag.oneoh.cloud')) {
-                rule.domain.push(...directCustomRuleSet.domain);
-                rule.domain_suffix.push(...directCustomRuleSet.domain_suffix);
-                rule.ip_cidr.push(...directCustomRuleSet.ip_cidr);
-                break;
-            }
-        }
-    }
-
-
-    if (proxyCustomRuleSet) {
-        for (let i = 0; i < newConfig.route.rules.length; i++) {
-            let rule = newConfig.route.rules[i];
-            if (rule.domain && Array.isArray(rule.domain) && rule.domain.includes('proxy-tag.oneoh.cloud')) {
-                rule.domain.push(...proxyCustomRuleSet.domain);
-                rule.domain_suffix.push(...proxyCustomRuleSet.domain_suffix);
-                rule.ip_cidr.push(...proxyCustomRuleSet.ip_cidr);
-                break;
-            }
-        }
-    }
     updateExperimentalConfig(newConfig, dbCacheFilePath);
-    const allowLan = await getAllowLan();
+    
+    // Определяем allowLan из конфига подписки, если есть соответствующий inbound
+    let allowLan = false;
+    if (dbConfigData && dbConfigData.inbounds) {
+        const mixedInbound = dbConfigData.inbounds.find((inbound: any) => inbound.type === 'mixed');
+        if (mixedInbound && mixedInbound.listen === '0.0.0.0') {
+            allowLan = true;
+        }
+    }
+    
+    // Если в подписке не указано, используем значение по умолчанию
+    if (!allowLan) {
+        allowLan = await getAllowLan();
+    }
 
     if (allowLan) {
         newConfig["inbounds"][0]["listen"] = "0.0.0.0";
@@ -103,36 +131,9 @@ export async function setTunConfig(identifier: string) {
     let dbConfigData = await getSubscriptionConfig(identifier);
     const appConfigPath = await path.appConfigDir();
     const dbCacheFilePath = await path.join(appConfigPath, 'tun-cache-rule-v1.db');
-    let directCustomRuleSet = await getCustomRuleSet('direct');
-    let proxyCustomRuleSet = await getCustomRuleSet('proxy');
-
-
-    if (directCustomRuleSet) {
-        // 找到包含 direct-tag.oneoh.cloud 的规则的坐标，插入自定义规则
-        for (let i = 0; i < newConfig.route.rules.length; i++) {
-            let rule = newConfig.route.rules[i];
-            if (rule.domain && Array.isArray(rule.domain) && rule.domain.includes('direct-tag.oneoh.cloud')) {
-                rule.domain.push(...directCustomRuleSet.domain);
-                rule.domain_suffix.push(...directCustomRuleSet.domain_suffix);
-                rule.ip_cidr.push(...directCustomRuleSet.ip_cidr);
-                break;
-            }
-
-        }
-    }
-
-
-    if (proxyCustomRuleSet) {
-        for (let i = 0; i < newConfig.route.rules.length; i++) {
-            let rule = newConfig.route.rules[i];
-            if (rule.domain && Array.isArray(rule.domain) && rule.domain.includes('proxy-tag.oneoh.cloud')) {
-                rule.domain.push(...proxyCustomRuleSet.domain);
-                rule.domain_suffix.push(...proxyCustomRuleSet.domain_suffix);
-                rule.ip_cidr.push(...proxyCustomRuleSet.ip_cidr);
-                break;
-            }
-        }
-    }
+    
+    // Правила теперь берутся из конфига подписки, а не из настроек приложения
+    // Если в конфиге подписки есть route.rules, они будут использованы через updateVPNServerConfigFromDB
 
 
 
@@ -158,7 +159,21 @@ export async function setTunConfig(identifier: string) {
     }
 
     console.log("当前 TUN Stack:", newConfig.inbounds[0].stack);
-    updateExperimentalConfig(newConfig, dbCacheFilePath); const allowLan = await getAllowLan();
+    updateExperimentalConfig(newConfig, dbCacheFilePath);
+    
+    // Определяем allowLan из конфига подписки, если есть соответствующий inbound
+    let allowLan = false;
+    if (dbConfigData && dbConfigData.inbounds) {
+        const mixedInbound = dbConfigData.inbounds.find((inbound: any) => inbound.type === 'mixed');
+        if (mixedInbound && mixedInbound.listen === '0.0.0.0') {
+            allowLan = true;
+        }
+    }
+    
+    // Если в подписке не указано, используем значение по умолчанию
+    if (!allowLan) {
+        allowLan = await getAllowLan();
+    }
 
     if (allowLan) {
         newConfig["inbounds"][1]["listen"] = "0.0.0.0";
@@ -187,7 +202,20 @@ export async function setGlobalMixedConfig(identifier: string) {
 
 
     updateExperimentalConfig(newConfig, dbCacheFilePath);
-    const allowLan = await getAllowLan();
+    
+    // Определяем allowLan из конфига подписки, если есть соответствующий inbound
+    let allowLan = false;
+    if (dbConfigData && dbConfigData.inbounds) {
+        const mixedInbound = dbConfigData.inbounds.find((inbound: any) => inbound.type === 'mixed');
+        if (mixedInbound && mixedInbound.listen === '0.0.0.0') {
+            allowLan = true;
+        }
+    }
+    
+    // Если в подписке не указано, используем значение по умолчанию
+    if (!allowLan) {
+        allowLan = await getAllowLan();
+    }
 
     if (allowLan) {
         newConfig["inbounds"][0]["listen"] = "0.0.0.0";
@@ -240,7 +268,20 @@ export default async function setGlobalTunConfig(identifier: string) {
 
     updateExperimentalConfig(newConfig, dbCacheFilePath);
 
-    const allowLan = await getAllowLan();
+    // Определяем allowLan из конфига подписки, если есть соответствующий inbound
+    let allowLan = false;
+    if (dbConfigData && dbConfigData.inbounds) {
+        const mixedInbound = dbConfigData.inbounds.find((inbound: any) => inbound.type === 'mixed');
+        if (mixedInbound && mixedInbound.listen === '0.0.0.0') {
+            allowLan = true;
+        }
+    }
+    
+    // Если в подписке не указано, используем значение по умолчанию
+    if (!allowLan) {
+        allowLan = await getAllowLan();
+    }
+    
     if (allowLan) {
         newConfig["inbounds"][1]["listen"] = "0.0.0.0";
     } else {

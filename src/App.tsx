@@ -18,7 +18,6 @@ import LanguageDialog from './components/settings/language-dialog';
 const ConfigurationPage = React.lazy(() => import('./page/config'));
 const DevPage = React.lazy(() => import('./page/developer'));
 const SettingsPage = React.lazy(() => import('./page/settings'));
-const RouterSettingsPage = React.lazy(() => import('./page/router'));
 const UpdaterButton = React.lazy(() => import('./components/settings/updater-button'));
 
 
@@ -61,13 +60,6 @@ function Body({ lang, activeScreen }: BodyProps) {
         return (
           <Suspense fallback={<LoadingFallback />}>
             <DevPage />
-          </Suspense>
-        );
-
-      case 'router_settings':
-        return (
-          <Suspense fallback={<LoadingFallback />}>
-            <RouterSettingsPage />
           </Suspense>
         );
 

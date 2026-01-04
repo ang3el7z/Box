@@ -9,8 +9,8 @@ import { message } from '@tauri-apps/plugin-dialog';
 import en from '../../lang/en.json';
 import zh from '../../lang/zh.json';
 import ru from '../../lang/ru.json';
-import setGlobalTunConfig, { setGlobalMixedConfig, setMixedConfig, setTunConfig } from '../config/version_1_12/main';
-import { getClashApiSecret, getEnableTun, getLanguage, getStoreValue, getUserAgent } from '../single/store';
+import setGlobalTunConfig, { detectModeFromSubscription, setGlobalMixedConfig, setMixedConfig, setTunConfig } from '../config/version_1_12/main';
+import { getClashApiSecret, getLanguage, getStoreValue, getUserAgent } from '../single/store';
 const appWindow = getCurrentWindow();
 const enLang = en as Record<string, string>;
 const zhLang = zh as Record<string, string>;
@@ -136,7 +136,12 @@ async function isRunning() {
 async function syncConfig(props: SyncConfigProps) {
     try {
         const identifier = await getStoreValue(SSI_STORE_KEY);
-        const useTun = await getEnableTun();
+        if (!identifier) {
+            throw new Error("No subscription selected");
+        }
+        
+        // Определяем режим из конфига подписки
+        const useTun = await detectModeFromSubscription(identifier);
 
         //zh: 直接使用 getStoreValue(RULE_MODE_STORE_KEY) 代替 setStoreValue 来获取当前模式，这样不会读到旧的值
         //en: Directly use getStoreValue(RULE_MODE_STORE_KEY) instead of setStoreValue to get the current mode, so that the old value will not be read
@@ -152,6 +157,7 @@ async function syncConfig(props: SyncConfigProps) {
                 console.log('没有超级管理员权限，弹出授权对话框');
                 props.onRequirePrivileged?.();
                 props.onError?.(new Error("没有超级管理员权限"));
+                return;
             } else {
                 console.log('有超级管理员权限，继续配置');
                 console.log('privileged:', privileged);
@@ -163,7 +169,7 @@ async function syncConfig(props: SyncConfigProps) {
             const fn = currentMode === 'global' ? setGlobalTunConfig : setTunConfig;
             await fn(identifier);
         } else {
-            console.log('使用普通模式');
+            console.log('使用 system proxy 模式');
             const fn = currentMode === 'global' ? setGlobalMixedConfig : setMixedConfig;
             await fn(identifier);
         }
@@ -182,7 +188,13 @@ export const vpnServiceManager = {
     start: async () => {
         try {
             const configPath = await getSingBoxConfigPath();
-            const tunMode: boolean | undefined = await getEnableTun();
+            const identifier = await getStoreValue(SSI_STORE_KEY);
+            if (!identifier) {
+                throw new Error("No subscription selected");
+            }
+            
+            // Определяем режим из конфига подписки
+            const tunMode = await detectModeFromSubscription(identifier);
             let mode: vpnServiceManagerMode = tunMode ? 'TunProxy' : 'SystemProxy';
             console.log("启动VPN服务");
             console.log("模式:", mode);
@@ -214,17 +226,30 @@ export const vpnServiceManager = {
 
     reload: async (delay: number) => {
         if (await isRunning()) {
-            const useTun = await getEnableTun();
-            await new Promise(resolve => setTimeout(resolve, delay));
+            try {
+                const identifier = await getStoreValue(SSI_STORE_KEY);
+                if (!identifier) {
+                    console.warn("No subscription selected, cannot reload");
+                    return;
+                }
+                
+                const useTun = await detectModeFromSubscription(identifier);
+                await new Promise(resolve => setTimeout(resolve, delay));
 
-            // 判断系统类型
-            if (type() === 'windows' && !useTun) {
-                // Windows 下的系统代理模式需要重启服务
-                await invoke("stop", { app: appWindow });
-                await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒确保服务完全停止
-                await vpnServiceManager.start();
-            } else {
-                await invoke("reload_config", { isTun: useTun });
+                // 判断系统类型
+                if (type() === 'windows' && !useTun) {
+                    // Windows 下的系统代理模式需要重启服务
+                    await invoke("stop", { app: appWindow });
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒确保服务完全停止
+                    await vpnServiceManager.start();
+                } else {
+                    await invoke("reload_config", { isTun: useTun });
+                }
+            } catch (error: any) {
+                console.error('Failed to reload config:', error);
+                // Останавливаем сервис, если конфиг невалидный
+                await vpnServiceManager.stop();
+                throw error;
             }
         } else {
             console.warn("VPN service is not running, cannot reload config");
